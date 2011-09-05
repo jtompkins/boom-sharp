@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace boomsharp
+namespace BoomSharp
 {
 	public interface IStorage
 	{
@@ -12,6 +12,16 @@ namespace boomsharp
 		
 		//Returns a tuple - list, key, value for a given key
 		Tuple<string, string, string> GetItem(string list, string key);
+		
+		IDictionary<string, string> GetList(string list);
+		
+		void AddList(string list);
+		void AddItem(string list, string key, string value);
+		
+		void Initialize();
+		void Save();
+		
+		bool IsInitialized { get; }
 	}
 }
 
