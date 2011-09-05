@@ -1,0 +1,16 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="GistStorage.cs">
+    <Files>
+      <File FileName="Main.cs" Line="17" Column="31" />
+      <File FileName="Command.cs" Line="8" Column="22" />
+      <File FileName="IStorage.cs" Line="8" Column="1" />
+      <File FileName="ConsoleHelper.cs" Line="10" Column="3" />
+      <File FileName="GistStorage.cs" Line="27" Column="10" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
