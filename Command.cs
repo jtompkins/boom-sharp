@@ -1,4 +1,7 @@
 using System;
+using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace BoomSharp
 {
@@ -16,6 +19,55 @@ namespace BoomSharp
 		
 		public void RunCommand(string[] args)
 		{
+			if (args.Length > 0)
+			{
+				Queue<string> arguments = new Queue<string>(args);
+				
+				string command = arguments.Dequeue();				
+				string major = (arguments.Count > 0) ? arguments.Dequeue() : null;
+				string minor = (arguments.Count > 0) ? arguments.Dequeue() : null;
+				
+				switch (command.ToLower())
+				{
+					case "all":
+					case "a":
+						this.All();
+					
+						break;
+						
+					case "random":
+					case "r":
+						this.Random();
+					
+						break;
+						
+					case "echo":
+					case "e":
+						this.Echo(major, minor);
+					
+						break;
+						
+					case "open":
+					case "o":
+						this.Open(major, minor);
+					
+						break;
+					
+					case "help":
+						this.Help();
+					
+						break;
+					
+					case "--version":
+					case "v":
+						this.Version();
+					
+						break;
+					
+					default:
+						break;
+				}
+			}
 		}
 		
 		public void All()
@@ -23,6 +75,14 @@ namespace BoomSharp
 		}
 		
 		public void Overview()
+		{
+		}
+		
+		public void Help()
+		{
+		}
+		
+		public void Version()
 		{
 		}
 		
@@ -47,4 +107,3 @@ namespace BoomSharp
 		}
 	}
 }
-
