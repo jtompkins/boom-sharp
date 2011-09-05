@@ -65,6 +65,8 @@ namespace BoomSharp
 						break;
 					
 					default:
+						
+					
 						break;
 				}
 			}
@@ -90,19 +92,51 @@ namespace BoomSharp
 		{
 		}
 		
-		public void Echo(string major)
+		public void Echo(string key)
 		{
 		}
 		
-		public void Echo(string major, string minor)
+		public void Echo(string list, string key)
 		{
 		}
 		
-		public void Open(string major)
+		public void Open(string key)
 		{
 		}
 		
-		public void Open(string major, string minor)
+		public void Open(string list, string key)
+		{
+		}
+		
+		public void ShowList(string list)
+		{
+		}
+		
+		public void CopyItem(string key)
+		{
+		}
+		
+		public void CopyItem(string list, string key)
+		{
+		}
+		
+		public void RemoveList(string list)
+		{
+		}
+		
+		public void RemoveItem(string key)
+		{
+		}
+		
+		public void RemoveItem(string list, string key)
+		{
+		}
+		
+		public void AddList(string list)
+		{
+		}
+		
+		public void AddItem(string list, string key, string value)
 		{
 		}
 	}
