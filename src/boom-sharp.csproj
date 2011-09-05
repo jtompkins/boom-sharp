@@ -35,14 +35,22 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="Newtonsoft.Json, Version=4.0.2.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\Json40r2\Bin\Net\Newtonsoft.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="Command.cs" />
-    <Compile Include="IStorage.cs" />
     <Compile Include="ConsoleHelper.cs" />
-    <Compile Include="GistStorage.cs" />
+    <Compile Include="CommandParser.cs" />
+    <Compile Include="BoomConfig.cs" />
+    <Compile Include="Storage\GistStore.cs" />
+    <Compile Include="Storage\IStore.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="Storage\" />
+  </ItemGroup>
 </Project>
