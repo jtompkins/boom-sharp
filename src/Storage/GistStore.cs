@@ -13,7 +13,15 @@ namespace BoomSharp
 		private string GistId { get; set; }
 		
 		#region IStorage implementation
-		
+
+		public string Name
+		{
+			get
+			{
+				return "gist";
+			}
+		}
+
 		public IDictionary<string, IDictionary<string, string>> All()
 		{
 			throw new NotImplementedException();
@@ -75,7 +83,12 @@ namespace BoomSharp
 		{
 			throw new NotImplementedException ();
 		}
-		
+
+		public void ImportStore(IDictionary<string, IDictionary<string, string>> storeData)
+		{
+			throw new NotImplementedException();
+		}
+	
 		#endregion
 	}
 }

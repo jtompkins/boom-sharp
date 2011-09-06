@@ -15,7 +15,9 @@ namespace BoomSharp
 		{
 			ConsoleHelper.TabWidth = 4;
 		}
-		
+
+		#region General Console Method Wrappers
+
 		public static void Write(string s, Color? c = null)
 		{
 			Console.Write(ConsoleHelper.GetIndentString() + s);
@@ -29,26 +31,17 @@ namespace BoomSharp
 		public static void WriteList(IList<string> list, Color? c = null, char bullet = '*')
 		{
 			foreach (string s in list.OrderBy(i => i))
-			{
 				Console.WriteLine(ConsoleHelper.GetIndentString() + bullet + " " + s);
-			}
 		}
 		
-		public static void WriteDictionary(IDictionary<string, string> dict, Color? keyColor = null, Color? valueColor = null, bool balanceKeys = true)
+		public static void WriteDictionary(IDictionary<string, string> dict, int defaultPadding = 0, Color? keyColor = null, Color? valueColor = null)
 		{
-			int rightPadding = 0;
-			
-			if (dict.Count > 0)
+			if ((dict != null) && (dict.Count > 0))
 			{
-				if (balanceKeys)
-					rightPadding = dict.Keys.Max(k => k.Length) + 4;
-				
-				IList<string> keys = dict.Keys.OrderBy(k => k).ToList();
-				
-				foreach (string key in keys)
-				{
+				int rightPadding = (defaultPadding == 0) ? (dict.Keys.Max(k => k.Length) + 4) : defaultPadding;
+
+				foreach (string key in dict.Keys.OrderBy(k => k))
 					Console.WriteLine(ConsoleHelper.GetIndentString() + (key + ": ").PadRight(rightPadding) + dict[key]);
-				}
 			}
 		}
 		
@@ -61,7 +54,61 @@ namespace BoomSharp
 			
 			Console.Write("\n");
 		}
-		
+
+		#endregion
+
+		#region Boom-Sharp Specific Helpers
+
+		public static void WriteAmbiguousKeysMessage(IList<Tuple<string, string, string>> items)
+		{
+			ConsoleHelper.WriteLine("Multiple keys found:");
+
+			IList<string> msgs = items.Select(t => "In " + t.Item1 + " => " + t.Item2 + ": " + t.Item3).ToList();
+
+			ConsoleHelper.IncreaseIndent();
+			ConsoleHelper.WriteList(msgs);
+			ConsoleHelper.ResetIndent();
+		}
+
+		public static void WriteKeyNotFoundMessage(string list, string key)
+		{
+			ConsoleHelper.WriteLine(key + " not found in " + list + ".");
+		}
+
+		public static void WriteKeyCopiedMessage(string value)
+		{
+			ConsoleHelper.WriteLine("Boom! We just copied " + value + " to the clipboard.");
+		}
+
+		public static void WriteListOpenedMessage(string list)
+		{
+			ConsoleHelper.WriteLine("Boom! We just opened all of " + list + " for you.");
+		}
+
+		public static void WriteKeyOpenedMessage(string list, string key)
+		{
+			ConsoleHelper.WriteLine("Boom! We just opened " + key + " for you.");
+		}
+
+		public static void WriteKeyAddedMessage(string list, string key, string value)
+		{
+			ConsoleHelper.WriteLine("Boom! " + key + " in " + list + " is " + value + ". Got it.");
+		}
+
+		public static void WriteListAddedMessage(string list)
+		{
+			ConsoleHelper.WriteLine("Boom! Created a new list called " + list + ".");
+		}
+
+		public static void WriteKeyRemovedMessage(string list, string key)
+		{
+			ConsoleHelper.WriteLine("Boom! " + key + " is gone forever from " + list + ".");
+		}
+
+		#endregion
+
+		#region Indent Helpers
+
 		private static string GetIndentString()
 		{
 			StringBuilder sb = new StringBuilder();
@@ -93,6 +140,8 @@ namespace BoomSharp
 		{
 			ConsoleHelper.IndentLevel = 0;
 		}
+
+		#endregion
 	}
 }
 

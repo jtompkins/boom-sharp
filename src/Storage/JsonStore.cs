@@ -34,14 +34,26 @@ namespace BoomSharp
 		}
 		
 		#region IStore implementation
-		public IList<Tuple<string, string, string>> GetItem (string key)
+
+		public string Name
+		{
+			get
+			{
+				return "json";
+			}
+		}
+
+		public IList<Tuple<string, string, string>> GetItem(string key)
 		{
 			List<Tuple<string, string, string>> items = new List<Tuple<string, string, string>>();
-			
-			foreach (KeyValuePair<string, IDictionary<string, string>> kvp in this.Lists)
-			{
-				if (kvp.Value.ContainsKey(key.ToLower()))
-					items.Add(Tuple.Create(kvp.Key, key, kvp.Value[key]));
+
+			if (!String.IsNullOrEmpty(key))
+			{ 
+				foreach (KeyValuePair<string, IDictionary<string, string>> kvp in this.Lists)
+				{
+					if (kvp.Value.ContainsKey(key.ToLower()))
+						items.Add(Tuple.Create(kvp.Key, key, kvp.Value[key]));
+				}
 			}
 			
 			return items;
@@ -70,12 +82,20 @@ namespace BoomSharp
 		
 		public void AddList (string list)
 		{
+			if (String.IsNullOrEmpty(list))
+				return;
+
 			if (!this.HasList(list))
 				this.Lists.Add(list.ToLower(), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase));
 		}
 
 		public void AddItem (string list, string key, string value)
 		{
+			if ((String.IsNullOrEmpty(list)) ||
+				(String.IsNullOrEmpty(key)) ||
+				(String.IsNullOrEmpty(value)))
+				return;
+
 			if (!this.HasList(list))
 				this.AddList(list);
 			
@@ -97,7 +117,7 @@ namespace BoomSharp
 				this.Lists[list].Remove(key);
 		}
 
-		public bool HasList (string list)
+		public bool HasList(string list)
 		{
 			if (!String.IsNullOrEmpty(list))
 				return this.Lists.ContainsKey(list);
@@ -105,12 +125,15 @@ namespace BoomSharp
 			return false;
 		}
 
-		public bool HasKey (string key)
+		public bool HasKey(string key)
 		{
-			foreach (IDictionary<string, string> list in this.Lists.Values)
+			if (!String.IsNullOrEmpty(key))
 			{
-				if ((!String.IsNullOrEmpty(key)) && (list.ContainsKey(key)))
-					return true;
+				foreach (IDictionary<string, string> list in this.Lists.Values)
+				{
+					if (list.ContainsKey(key))
+						return true;
+				}
 			}
 				
 			return false;
@@ -118,14 +141,20 @@ namespace BoomSharp
 
 		public bool HasKey (string list, string key)
 		{
-			if ((this.HasList(list)) && (!String.IsNullOrEmpty(key)))
-				return (this.Lists[list].ContainsKey(key));
-						
+			if ((!String.IsNullOrEmpty(list)) && (!String.IsNullOrEmpty(key)) && (this.HasList(list)))
+				return this.Lists[list].ContainsKey(key);
+
 			return false;
 		}
-		
+
+		public void ImportStore(IDictionary<string, IDictionary<string, string>> storeData)
+		{
+			return;
+		}
+
 		public void Initialize()
 		{
+			//if the configuration file doesn't exist, write out a skeleton for one.
 			if (!File.Exists(JsonStore.JsonStorePath))
 			{
 				using (StreamWriter f = File.CreateText(JsonStore.JsonStorePath))
@@ -164,7 +193,7 @@ namespace BoomSharp
 			}
 		}
 
-		public void Save ()
+		public void Save()
 		{
 			//the JSON structure of the Boom data is pretty weird.  Instead of a dictionary
 			//of dictionaries (i.e., an object containing other objects in JSON), it uses

@@ -24,6 +24,10 @@ namespace BoomSharp
 		bool HasList(string list);
 		bool HasKey(string key);
 		bool HasKey(string list, string key);
+
+		string Name { get; }
+
+		void ImportStore(IDictionary<string, IDictionary<string, string>> storeData);
 		
 		void Initialize();
 		void Save();

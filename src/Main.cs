@@ -11,7 +11,7 @@ namespace BoomSharp
 		private static IStore _Store { get; set; }
 		private static BoomConfig _Config { get; set; }
 		private static CommandParser _Command { get; set; }
-		
+
 		public static IStore Store
 		{
 			get
@@ -19,24 +19,8 @@ namespace BoomSharp
 				if (BoomSharp._Store == null)
 				{
 					BoomConfig c = new BoomConfig();
-					
-					switch (c["backend"].ToLower())
-					{
-						case "gist":
-							BoomSharp._Store = new GistStore();
-						
-							break;
-						
-						case "json":
-							BoomSharp._Store = new JsonStore();
-						
-							break;
-						
-						default:
-							BoomSharp._Store = new JsonStore();
-						
-							break;
-					}
+
+					BoomSharp.SwitchStore(c["backend"], true);
 				}
 				
 				return BoomSharp._Store;
@@ -64,12 +48,49 @@ namespace BoomSharp
 				return BoomSharp._Command;
 			}
 		}
+
+		public static IStore GetStore(string store, bool fallbackToDefault = false)
+		{
+			switch (store.ToLower())
+			{
+				case "gist":
+					return new GistStore();
+
+				case "json":
+					return new JsonStore();
+
+				default:
+					if (fallbackToDefault)
+						return new JsonStore();
+
+					break;
+			}
+
+			return null;
+		}
+
+		public static bool SwitchStore(string newStore, bool fallbackToDefault = false)
+		{
+			IStore s = BoomSharp.GetStore(newStore, fallbackToDefault);
+
+			if (s != null)
+			{
+				BoomConfig c = new BoomConfig();
+
+				c["backend"] = s.Name;
+
+				BoomSharp._Store = s;
+
+				return true;
+			}
+
+			return false;
+		}
 		
 		[STAThread] // for OLE
 		public static void Main (string[] args)
 		{
-			//BoomSharp.Command.RunCommand(new string[] { "csi" });
-			//BoomSharp.Command.RunCommand(new string[] { "campfire" });
+			//BoomSharp.Command.RunCommand(new string[] { "import", "json" });
 			
 			BoomSharp.Command.RunCommand(args);
 		}

@@ -11,312 +11,448 @@ namespace BoomSharp
 		public CommandParser()
 		{
 		}
-		
-		public void RunCommand(string[] args)
+
+		public bool RunCommand(string[] args)
 		{
 			if (args.Length > 0)
 			{
 				Queue<string> arguments = new Queue<string>(args);
-				
-				string command = arguments.Dequeue().ToLower();				
+
+				string command = arguments.Dequeue().ToLower();
 				string major = (arguments.Count > 0) ? arguments.Dequeue().ToLower() : null;
 				string minor = (arguments.Count > 0) ? arguments.Dequeue().ToLower() : null;
-				
+
 				//let's see if the first argument is one of our known commands.
 				if ((command == "all") || (command == "a"))
-				{
-					this.All();
-					return;
-				}
+					return this.All();
 				else if ((command == "random") || (command == "r"))
-				{
-					this.Random();
-					return;
-				}
+					return this.Random(major);
 				else if ((command == "echo") || (command == "e"))
-				{
-					if (!String.IsNullOrEmpty(minor))
-						this.Echo(major, minor);
-					else
-						this.Echo(major);
-					
-					return;
-				}
+					return (!String.IsNullOrEmpty(minor)) ? this.Echo(major, minor) : this.Echo(major);
 				else if ((command == "open") || (command == "o"))
-				{
-					if (!String.IsNullOrEmpty(minor))
-						this.Open(major, minor);
-					else
-						this.Open(major);
-					
-					return;
-				}
+					return this.Open(major, minor);
+				else if (command == "store")
+					return this.ShowStore();
+				else if (command == "switch")
+					return this.SwitchStore(major);
+				else if (command == "import")
+					return this.ImportStore(major);
 				else if (command == "help")
-				{
-					this.Help();
-					return;
-				}
+					return this.Help();
 				else if ((command == "--version") || (command == "-v"))
-				{
-					this.Version();
-					return;
-				}
-				
+					return this.Version();
+
 				//first, see if we're dealing with a list
 				if (BoomSharp.Store.HasList(command))
 				{
 					//let's see if we need to delete the list
 					if (major == "delete")
-					{
-						this.RemoveList(command);
-						return;
-					}
-					
+						return this.RemoveList(command);
+
 					//okay, now let's check to see if there are other arguments
 					//if not, just show the items in the list
 					if (String.IsNullOrEmpty(major))
-					{
-						this.ShowList(command);
-						return;
-					}
-					
+						return this.ShowList(command);
+
 					//if the 3rd argument is filled out and isn't "delete",
 					//we're going to be either adding something or copying an item.
 					//if the 3rd argument *is* "delete", we're removing an item.
 					if (String.IsNullOrEmpty(minor))
-					{
-						this.CopyItem(command, major);
-						return;
-					}
+						return this.CopyItem(command, major);
 					else if (minor != "delete")
-					{
-						this.AddItem(command, major, minor);
-						return;
-					}
+						return this.AddItem(command, major, minor);
 					else
-					{
-						this.RemoveItem(command, major);
-						return;
-					}
+						return this.RemoveItem(command, major);
 				}
-				
+
 				//okay, the command wasn't a list. Let's see if it's an 
 				//item. if so, we're going to copy it.
 				if (BoomSharp.Store.HasKey(command))
-				{
-					this.CopyItem(command);
-					return;
-				}
-				
+					return this.CopyItem(command);
+
 				if (String.IsNullOrEmpty(major))
-				{
-					this.AddList(command);
-					return;
-				}
-				
+					return this.AddList(command);
+
 				//last possible thing - we were passed all 3 arguments, but
 				//the first one wasn't an existing list. in that case, we just
 				//go ahead and create the list *and* the item.
-				this.AddItem(command, major, minor);
+				return this.AddItem(command, major, minor);
 			}
+
+			return false;
 		}
-		
-		public void All()
+
+		public bool All()
 		{
 			ConsoleHelper.IncreaseIndent();
-			
-			foreach (KeyValuePair<string, IDictionary<string, string>> kvp in BoomSharp.Store.All())
+
+			IDictionary<string, IDictionary<string, string>> allLists = BoomSharp.Store.All();
+
+			int keyPadding = allLists.SelectMany(d => d.Value).Select(kvp => kvp.Key.Length).Max() + 4;
+
+			foreach (KeyValuePair<string, IDictionary<string, string>> list in allLists)
 			{
-				ConsoleHelper.WriteLine(kvp.Key);
-				
+				ConsoleHelper.WriteLine(list.Key);
+
 				ConsoleHelper.IncreaseIndent();
-				
-				ConsoleHelper.WriteDictionary(kvp.Value);
-				
+
+				ConsoleHelper.WriteDictionary(list.Value, keyPadding);
+
 				ConsoleHelper.DecreaseIndent();
 			}
+
+			return true;
 		}
-		
-		public void Overview()
+
+		public bool Overview()
 		{
+			return true;
 		}
-		
-		public void Help()
-		{
-		}
-		
-		public void Version()
-		{
-			ConsoleHelper.WriteLine("You're running boom-sharp " + BoomSharp.VERSION + ". Congratulations!");
-		}
-		
-		public void Random()
-		{
-		}
-		
-		public void Echo(string key)
-		{
-			IList<Tuple<string, string, string>> items = BoomSharp.Store.GetItem(key);
-			
-			if (items != null)
-			{
-				if (items.Count > 1)
-					PrintMultipleItems(items);
-				else
-				{
-					Tuple<string, string, string> item = items.FirstOrDefault();
-					
-					ConsoleHelper.WriteLine(item.Item3);
-				}
-			}
-		}
-		
-		public void Echo(string list, string key)
-		{
-			Tuple<string, string, string> item = BoomSharp.Store.GetItem(list, key);
-			
-			if (item != null)
-			{
-				ConsoleHelper.WriteLine(item.Item3);
-			}
-			else
-			{
-				ConsoleHelper.WriteLine(key + " not found in " + list + ".");
-			}
-		}
-		
-		public void Open(string key)
-		{
-		}
-		
-		public void Open(string list, string key)
-		{
-		}
-		
-		public void ShowList(string list)
+
+		public bool Help()
 		{
 			ConsoleHelper.IncreaseIndent();
-			ConsoleHelper.WriteDictionary(BoomSharp.Store.GetList(list), null, null, true);
-			ConsoleHelper.ResetIndent();
+
+			ConsoleHelper.WriteLine("- boom-sharp: help ---------------------------------------------------\n");
+
+			ConsoleHelper.WriteLine("boom-sharp                          display high-level overview");
+			ConsoleHelper.WriteLine("boom-sharp all                      show all items in all lists");
+			ConsoleHelper.WriteLine("boom-sharp help                     this help text");
+			ConsoleHelper.WriteLine("boom-sharp storage                  shows which storage backend you're using");
+			ConsoleHelper.WriteLine("boom-sharp switch <storage>         switches to a different storage backend\n");
+			
+			ConsoleHelper.WriteLine("boom-sharp <list>                   create a new list");
+			ConsoleHelper.WriteLine("boom-sharp <list>                   show items for a list");
+			ConsoleHelper.WriteLine("boom-sharp <list> delete            deletes a list\n");
+			
+			ConsoleHelper.WriteLine("boom-sharp <list> <name> <value>    create a new list item");
+			ConsoleHelper.WriteLine("boom-sharp <name>                   copy item's value to clipboard");
+			ConsoleHelper.WriteLine("boom-sharp <list> <name>            copy item's value to clipboard");
+			ConsoleHelper.WriteLine("boom-sharp open <list>              open the urls of all items in a list");
+			ConsoleHelper.WriteLine("boom-sharp open <name>              open item's url in browser");
+			ConsoleHelper.WriteLine("boom-sharp open <list> <name>       open item's url in browser for a list");
+			ConsoleHelper.WriteLine("boom-sharp random                   open a random item's url in browser");
+			ConsoleHelper.WriteLine("boom-sharp random <list>            open a random item's url for a list in browser");
+			ConsoleHelper.WriteLine("boom-sharp echo <name>              echo the item's value without copying");
+			ConsoleHelper.WriteLine("boom-sharp echo <list> <name>       echo the item's value without copying");
+			ConsoleHelper.WriteLine("boom-sharp <list> <name> delete     deletes an item");
+
+			return true;
 		}
-		
-		public void CopyItem(string key)
+
+		public bool Version()
+		{
+			ConsoleHelper.WriteLine("You're running boom-sharp " + BoomSharp.VERSION + ". Congratulations!");
+
+			return true;
+		}
+
+		public bool Random(string list)
+		{
+			return true;
+		}
+
+		public bool SwitchStore(string store)
+		{
+			bool success = BoomSharp.SwitchStore(store);
+
+			if (success)
+			{
+				ConsoleHelper.WriteLine("We've switched you over to " + BoomSharp.Store.Name + ".");
+
+				return true;
+			}
+
+			ConsoleHelper.WriteLine("We couldn't find that storage engine. Check the name and try again.");
+
+			return false;
+		}
+
+		public bool ShowStore()
+		{
+			ConsoleHelper.WriteLine("You're currently using " + BoomSharp.Store.Name + ".");
+
+			return true;
+		}
+
+		public bool ImportStore(string store)
+		{
+			IStore s = BoomSharp.GetStore(store);
+
+			if (s != null)
+			{
+				BoomSharp.Store.ImportStore(s.All());
+
+				ConsoleHelper.WriteLine("Boom! We imported all items from " + store + " to " + BoomSharp.Store.Name + ".");
+
+				return true;
+			}
+
+			ConsoleHelper.WriteLine("We couldn't find that storage engine. Check the name and try again.");
+
+			return false;
+		}
+
+		public bool Echo(string key)
+		{
+			if (BoomSharp.Store.HasKey(key))
+			{
+				IList<Tuple<string, string, string>> items = BoomSharp.Store.GetItem(key);
+
+				if (items != null)
+				{
+					if (items.Count > 1)
+						ConsoleHelper.WriteAmbiguousKeysMessage(items);
+					else
+					{
+						Tuple<string, string, string> item = items.FirstOrDefault();
+
+						ConsoleHelper.WriteLine(item.Item3);
+					}
+
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		public bool Echo(string list, string key)
+		{
+			if (BoomSharp.Store.HasKey(list, key))
+			{
+				Tuple<string, string, string> item = BoomSharp.Store.GetItem(list, key);
+
+				if (item != null)
+				{
+					ConsoleHelper.WriteLine(item.Item3);
+
+					return true;
+				}
+			}
+
+			ConsoleHelper.WriteKeyNotFoundMessage(list, key);
+
+			return false;
+		}
+
+		public bool Open(string major, string minor)
+		{
+			if (!String.IsNullOrEmpty(major))
+			{
+				if (BoomSharp.Store.HasList(major))
+				{
+					if (BoomSharp.Store.HasKey(minor))
+						return this.OpenKey(major, minor);
+					else
+						return this.OpenList(major);
+				}
+				else if (BoomSharp.Store.HasKey(major))
+					return this.OpenKey(major);
+			}
+
+			return false;
+		}
+
+		private bool OpenList(string list)
+		{
+			if (BoomSharp.Store.HasList(list))
+			{
+				IDictionary<string, string> l = BoomSharp.Store.GetList(list);
+
+				foreach (KeyValuePair<string, string> kvp in l)
+					System.Diagnostics.Process.Start(kvp.Value);
+
+				ConsoleHelper.WriteListOpenedMessage(list);
+
+				return true;
+			}
+
+			return false;
+		}
+
+		private bool OpenKey(string key)
 		{
 			IList<Tuple<string, string, string>> items = BoomSharp.Store.GetItem(key);
-			
+
 			if (items != null)
 			{
 				if (items.Count > 1)
-					PrintMultipleItems(items);
+					ConsoleHelper.WriteAmbiguousKeysMessage(items);
 				else
 				{
 					Tuple<string, string, string> item = items.FirstOrDefault();
-					
-					Clipboard.Clear();
-					Clipboard.SetText(item.Item3);
-					                  
-					ConsoleHelper.WriteLine("Boom! We just copied " + item.Item3 + " to the clipboard.");
+
+					System.Diagnostics.Process.Start(item.Item3);
+
+					ConsoleHelper.WriteKeyOpenedMessage(item.Item1, item.Item2);
+				}
+
+				return true;
+			}
+
+			return false;
+		}
+
+		private bool OpenKey(string list, string key)
+		{
+			if (BoomSharp.Store.HasKey(list, key))
+			{
+				Tuple<string, string, string> item = BoomSharp.Store.GetItem(list, key);
+
+				if (item != null)
+				{
+					System.Diagnostics.Process.Start(item.Item3);
+
+					ConsoleHelper.WriteKeyOpenedMessage(item.Item1, item.Item2);
+
+					return true;
 				}
 			}
+
+			ConsoleHelper.WriteKeyNotFoundMessage(list, key);
+
+			return false;
 		}
-		
-		public void CopyItem(string list, string key)
+
+		public bool ShowList(string list)
 		{
-			Tuple<string, string, string> item = BoomSharp.Store.GetItem(list, key);
-			
-			if (item != null)
-			{
-				Clipboard.Clear();
-				Clipboard.SetText(item.Item3);
-				
-				ConsoleHelper.WriteLine("Boom! We just copied " + item.Item3 + " to the clipboard.");
-			}
-			else
-			{
-				ConsoleHelper.WriteLine(key + " not found in " + list + ".");
-			}
+			ConsoleHelper.IncreaseIndent();
+			ConsoleHelper.WriteDictionary(BoomSharp.Store.GetList(list));
+			ConsoleHelper.ResetIndent();
+
+			return true;
 		}
-		
-		public void RemoveList(string list)
+
+		public bool CopyItem(string key)
 		{
-			if (!String.IsNullOrEmpty(list))
+			IList<Tuple<string, string, string>> items = BoomSharp.Store.GetItem(key);
+
+			if (items != null)
+			{
+				if (items.Count > 1)
+					ConsoleHelper.WriteAmbiguousKeysMessage(items);
+				else
+				{
+					Tuple<string, string, string> item = items.FirstOrDefault();
+
+					Clipboard.SetText(item.Item3);
+					ConsoleHelper.WriteKeyCopiedMessage(item.Item3);
+				}
+
+				return true;
+			}
+
+			return false;
+		}
+
+		public bool CopyItem(string list, string key)
+		{
+			if (BoomSharp.Store.HasKey(list, key))
+			{
+				Tuple<string, string, string> item = BoomSharp.Store.GetItem(list, key);
+
+				if (item != null)
+				{
+					Clipboard.SetText(item.Item3);
+					ConsoleHelper.WriteKeyCopiedMessage(item.Item3);
+
+					return true;
+				}
+			}
+
+			ConsoleHelper.WriteKeyNotFoundMessage(list, key);
+
+			return false;
+		}
+
+		public bool RemoveList(string list)
+		{
+			if (BoomSharp.Store.HasList(list))
 			{
 				ConsoleHelper.Write("You sure you want to delete everything in " + list + "? (y/n) ");
-				
+
 				if (Console.ReadLine() == "y")
 				{
 					BoomSharp.Store.RemoveList(list);
 					BoomSharp.Store.Save();
-					
+
 					ConsoleHelper.WriteLine("Boom! Deleted all your " + list + ".");
 				}
 				else
 					ConsoleHelper.WriteLine("Just kidding then.");
 			}
+
+			return true;
 		}
-		
-		public void RemoveItem(string key)
+
+		public bool RemoveItem(string key)
 		{
-			IList<Tuple<string, string, string>> items = BoomSharp.Store.GetItem(key);
-			
-			if (items != null)
+			if (BoomSharp.Store.HasKey(key))
 			{
-				if (items.Count > 1)
-					PrintMultipleItems(items);
-				else
+				IList<Tuple<string, string, string>> items = BoomSharp.Store.GetItem(key);
+
+				if (items != null)
 				{
-					Tuple<string, string, string> item = items.FirstOrDefault();
-					
-					BoomSharp.Store.RemoveItem(item.Item1, item.Item2);
-					BoomSharp.Store.Save();
-					
-					ConsoleHelper.WriteLine("Boom! " + item.Item2 + " is gone forever.");
+					if (items.Count > 1)
+						ConsoleHelper.WriteAmbiguousKeysMessage(items);
+					else
+					{
+						Tuple<string, string, string> item = items.FirstOrDefault();
+
+						BoomSharp.Store.RemoveItem(item.Item1, item.Item2);
+						BoomSharp.Store.Save();
+
+						ConsoleHelper.WriteKeyRemovedMessage(item.Item1, item.Item2);
+					}
+
+					return true;
 				}
 			}
+
+			return false;
 		}
-		
-		public void RemoveItem(string list, string key)
+
+		public bool RemoveItem(string list, string key)
 		{
-			Tuple<string, string, string> item = BoomSharp.Store.GetItem(list, key);
-			
-			if (item != null)
+			if (BoomSharp.Store.HasKey(list, key))
 			{
-				BoomSharp.Store.RemoveItem(list, key);
-				BoomSharp.Store.Save();
-				
-				ConsoleHelper.WriteLine("Boom! " + item.Item2 + " is gone forever.");
+				Tuple<string, string, string> item = BoomSharp.Store.GetItem(list, key);
+
+				if (item != null)
+				{
+					BoomSharp.Store.RemoveItem(list, key);
+					BoomSharp.Store.Save();
+
+					ConsoleHelper.WriteKeyRemovedMessage(item.Item1, item.Item2);
+
+					return true;
+				}
 			}
-			else
-			{
-				ConsoleHelper.WriteLine(key + " not found in " + list + ".");
-			}
+
+			ConsoleHelper.WriteKeyNotFoundMessage(list, key);
+
+			return false;
 		}
-		
-		public void AddList(string list)
+
+		public bool AddList(string list)
 		{
 			BoomSharp.Store.AddList(list);
 			BoomSharp.Store.Save();
-			
-			ConsoleHelper.WriteLine("Boom! Created a new list called " + list + ".");
+
+			ConsoleHelper.WriteListAddedMessage(list);
+
+			return true;
 		}
-		
-		public void AddItem(string list, string key, string value)
+
+		public bool AddItem(string list, string key, string value)
 		{
 			BoomSharp.Store.AddItem(list, key, value);
 			BoomSharp.Store.Save();
-			
-			ConsoleHelper.WriteLine("Boom! " + key + " in " + list + " is " + value + ". Got it.");
-		}
-		
-		private void PrintMultipleItems(IList<Tuple<string, string, string>> items)
-		{
-			ConsoleHelper.WriteLine("Multiple keys found:");
-					
-			IList<string> msgs = items.Select(t => "In " + t.Item1 + " => " + t.Item2 + ": " + t.Item3).ToList();
-			
-			ConsoleHelper.IncreaseIndent();
-			ConsoleHelper.WriteList(msgs);
-			ConsoleHelper.ResetIndent();
+
+			ConsoleHelper.WriteKeyAddedMessage(list, key, value);
+
+			return true;
 		}
 	}
 }
