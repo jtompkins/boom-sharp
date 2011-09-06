@@ -69,9 +69,9 @@ namespace BoomSharp
 		public static void Main (string[] args)
 		{
 			//BoomSharp.Command.RunCommand(new string[] { "csi" });
-			BoomSharp.Command.RunCommand(new string[] { "campfire" });
+			//BoomSharp.Command.RunCommand(new string[] { "campfire" });
 			
-			//BoomSharp.Command.RunCommand(args);
+			BoomSharp.Command.RunCommand(args);
 		}
 	}
 }
