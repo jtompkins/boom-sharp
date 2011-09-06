@@ -39,6 +39,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\Json40r2\Bin\Net\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
@@ -48,6 +49,7 @@
     <Compile Include="BoomConfig.cs" />
     <Compile Include="Storage\GistStore.cs" />
     <Compile Include="Storage\IStore.cs" />
+    <Compile Include="Storage\JsonStore.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

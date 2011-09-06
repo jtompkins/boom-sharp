@@ -17,7 +17,7 @@ namespace BoomSharp
 				    			? Environment.GetEnvironmentVariable("HOME")
 				    			: Environment.ExpandEnvironmentVariables("%HOMEDRIVE%%HOMEPATH%");
 			
-				configPath += Path.PathSeparator + ".boomconfig";
+				configPath += Path.DirectorySeparatorChar + ".boom.conf";
 				
 				return configPath;
 			}

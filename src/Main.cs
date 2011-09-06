@@ -25,8 +25,13 @@ namespace BoomSharp
 						
 							break;
 						
+						case "json":
+							BoomSharp._Store = new JsonStore();
+						
+							break;
+						
 						default:
-							BoomSharp._Store = new GistStore();
+							BoomSharp._Store = new JsonStore();
 						
 							break;
 					}
@@ -57,9 +62,13 @@ namespace BoomSharp
 				return BoomSharp._Command;
 			}
 		}
-				
+		
+		[STAThread] // for OLE
 		public static void Main (string[] args)
 		{
+			//BoomSharp.Command.RunCommand(new string[] { "csi" });
+			//BoomSharp.Command.RunCommand(new string[] { "campfire" });
+			
 			BoomSharp.Command.RunCommand(args);
 		}
 	}

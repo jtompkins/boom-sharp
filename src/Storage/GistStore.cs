@@ -14,6 +14,11 @@ namespace BoomSharp
 		
 		#region IStorage implementation
 		
+		public IDictionary<string, IDictionary<string, string>> All()
+		{
+			throw new NotImplementedException();
+		}
+		
 		public IList<Tuple<string, string, string>> GetItem (string key)
 		{
 			throw new NotImplementedException ();
@@ -38,6 +43,14 @@ namespace BoomSharp
 		{
 			throw new NotImplementedException ();
 		}
+		
+		public void RemoveList(string list)
+		{
+		}
+		
+		public void RemoveItem(string list, string key)
+		{
+		}
 
 		public bool HasList (string list)
 		{
@@ -53,19 +66,17 @@ namespace BoomSharp
 		{
 			throw new NotImplementedException ();
 		}
-
+		
+		public void Initialize()
+		{
+		}
+		
 		public void Save()
 		{
 			throw new NotImplementedException ();
 		}
-
-		public bool IsInitialized {
-			get {
-				throw new NotImplementedException ();
-			}
-		}
 		
 		#endregion
-}
+	}
 }
 
