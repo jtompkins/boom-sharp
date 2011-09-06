@@ -18,7 +18,7 @@ namespace BoomSharp
     								? Environment.GetEnvironmentVariable("HOME")
     								: Environment.ExpandEnvironmentVariables("%HOMEDRIVE%%HOMEPATH%");
 			
-				storePath += Path.DirectorySeparatorChar + ".boom";
+				storePath += Path.DirectorySeparatorChar + ".boomer";
 				
 				return storePath;
 			}
@@ -126,6 +126,14 @@ namespace BoomSharp
 		
 		public void Initialize()
 		{
+			if (!File.Exists(JsonStore.JsonStorePath))
+			{
+				using (StreamWriter f = File.CreateText(JsonStore.JsonStorePath))
+				{
+					f.Write("{\"lists\":[]}");
+				}
+			}
+			
 			using (StreamReader f = new StreamReader(JsonStore.JsonStorePath))
 			{
 				string jsonData = f.ReadToEnd();

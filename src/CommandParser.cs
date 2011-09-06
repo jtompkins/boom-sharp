@@ -35,12 +35,20 @@ namespace BoomSharp
 				}
 				else if ((command == "echo") || (command == "e"))
 				{
-					this.Echo(major, minor);
+					if (!String.IsNullOrEmpty(minor))
+						this.Echo(major, minor);
+					else
+						this.Echo(major);
+					
 					return;
 				}
 				else if ((command == "open") || (command == "o"))
 				{
-					this.Open(major, minor);
+					if (!String.IsNullOrEmpty(minor))
+						this.Open(major, minor);
+					else
+						this.Open(major);
+					
 					return;
 				}
 				else if (command == "help")
@@ -100,6 +108,12 @@ namespace BoomSharp
 					return;
 				}
 				
+				if (String.IsNullOrEmpty(major))
+				{
+					this.AddList(command);
+					return;
+				}
+				
 				//last possible thing - we were passed all 3 arguments, but
 				//the first one wasn't an existing list. in that case, we just
 				//go ahead and create the list *and* the item.
@@ -133,6 +147,7 @@ namespace BoomSharp
 		
 		public void Version()
 		{
+			ConsoleHelper.WriteLine("You're running boom-sharp " + BoomSharp.VERSION + ". Congratulations!");
 		}
 		
 		public void Random()
@@ -141,10 +156,33 @@ namespace BoomSharp
 		
 		public void Echo(string key)
 		{
+			IList<Tuple<string, string, string>> items = BoomSharp.Store.GetItem(key);
+			
+			if (items != null)
+			{
+				if (items.Count > 1)
+					PrintMultipleItems(items);
+				else
+				{
+					Tuple<string, string, string> item = items.FirstOrDefault();
+					
+					ConsoleHelper.WriteLine(item.Item3);
+				}
+			}
 		}
 		
 		public void Echo(string list, string key)
 		{
+			Tuple<string, string, string> item = BoomSharp.Store.GetItem(list, key);
+			
+			if (item != null)
+			{
+				ConsoleHelper.WriteLine(item.Item3);
+			}
+			else
+			{
+				ConsoleHelper.WriteLine(key + " not found in " + list + ".");
+			}
 		}
 		
 		public void Open(string key)

@@ -38,14 +38,17 @@ namespace BoomSharp
 		{
 			int rightPadding = 0;
 			
-			if (balanceKeys)
-				rightPadding = dict.Keys.Max(k => k.Length) + 4;
-			
-			IList<string> keys = dict.Keys.OrderBy(k => k).ToList();
-			
-			foreach (string key in keys)
+			if (dict.Count > 0)
 			{
-				Console.WriteLine(ConsoleHelper.GetIndentString() + (key + ": ").PadRight(rightPadding) + dict[key]);
+				if (balanceKeys)
+					rightPadding = dict.Keys.Max(k => k.Length) + 4;
+				
+				IList<string> keys = dict.Keys.OrderBy(k => k).ToList();
+				
+				foreach (string key in keys)
+				{
+					Console.WriteLine(ConsoleHelper.GetIndentString() + (key + ": ").PadRight(rightPadding) + dict[key]);
+				}
 			}
 		}
 		

@@ -6,6 +6,8 @@ namespace BoomSharp
 {
 	public class BoomSharp
 	{
+		public const string VERSION = "1.0";
+		
 		private static IStore _Store { get; set; }
 		private static BoomConfig _Config { get; set; }
 		private static CommandParser _Command { get; set; }
@@ -67,9 +69,9 @@ namespace BoomSharp
 		public static void Main (string[] args)
 		{
 			//BoomSharp.Command.RunCommand(new string[] { "csi" });
-			//BoomSharp.Command.RunCommand(new string[] { "campfire" });
+			BoomSharp.Command.RunCommand(new string[] { "campfire" });
 			
-			BoomSharp.Command.RunCommand(args);
+			//BoomSharp.Command.RunCommand(args);
 		}
 	}
 }
