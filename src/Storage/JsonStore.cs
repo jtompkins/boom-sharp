@@ -18,7 +18,7 @@ namespace BoomSharp
     								? Environment.GetEnvironmentVariable("HOME")
     								: Environment.ExpandEnvironmentVariables("%HOMEDRIVE%%HOMEPATH%");
 			
-				storePath += Path.DirectorySeparatorChar + ".boomer";
+				storePath += Path.DirectorySeparatorChar + ".boom";
 				
 				return storePath;
 			}
