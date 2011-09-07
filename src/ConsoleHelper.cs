@@ -18,30 +18,66 @@ namespace BoomSharp
 
 		#region General Console Method Wrappers
 
-		public static void Write(string s, Color? c = null)
+		public static void Write(string s, ConsoleColor? c = null)
 		{
+			if (c.HasValue)
+				Console.ForegroundColor = c.Value;
+
 			Console.Write(ConsoleHelper.GetIndentString() + s);
+
+			if (c.HasValue)
+				Console.ResetColor();
 		}
-		
-		public static void WriteLine(string s, Color? c = null)
+
+		public static void WriteLine(string s, ConsoleColor? c = null)
 		{
+			if (c.HasValue)
+				Console.ForegroundColor = c.Value;
+
 			Console.WriteLine(ConsoleHelper.GetIndentString() + s);
+
+			if (c.HasValue)
+				Console.ResetColor();
 		}
-		
-		public static void WriteList(IList<string> list, Color? c = null, char bullet = '*')
+
+		public static void WriteList(IList<string> list, ConsoleColor? c = null, char bullet = '*')
 		{
+			if (c.HasValue)
+				Console.ForegroundColor = c.Value;
+
 			foreach (string s in list.OrderBy(i => i))
 				Console.WriteLine(ConsoleHelper.GetIndentString() + bullet + " " + s);
+
+			if (c.HasValue)
+				Console.ResetColor();
 		}
-		
-		public static void WriteDictionary(IDictionary<string, string> dict, int defaultPadding = 0, Color? keyColor = null, Color? valueColor = null)
+
+		public static void WriteDictionary(IDictionary<string, string> dict, int defaultPadding = 0, ConsoleColor? keyColor = null, ConsoleColor? valueColor = null)
 		{
 			if ((dict != null) && (dict.Count > 0))
 			{
 				int rightPadding = (defaultPadding == 0) ? (dict.Keys.Max(k => k.Length) + 4) : defaultPadding;
 
 				foreach (string key in dict.Keys.OrderBy(k => k))
-					Console.WriteLine(ConsoleHelper.GetIndentString() + (key + ": ").PadRight(rightPadding) + dict[key]);
+				{
+					Console.Write(ConsoleHelper.GetIndentString());
+
+					if (keyColor.HasValue)
+						Console.ForegroundColor = keyColor.Value;
+
+					Console.Write((key + ": ").PadRight(rightPadding));
+
+					if (keyColor.HasValue)
+						Console.ResetColor();
+
+					if (valueColor.HasValue)
+						Console.ForegroundColor = valueColor.Value;
+
+					Console.WriteLine(dict[key]);
+
+					if (valueColor.HasValue)
+						Console.ResetColor();
+				}
 			}
 		}
 		
@@ -72,37 +108,62 @@ namespace BoomSharp
 
 		public static void WriteKeyNotFoundMessage(string list, string key)
 		{
-			ConsoleHelper.WriteLine(key + " not found in " + list + ".");
+			ConsoleHelper.Write(key, ConsoleColor.Yellow);
+			ConsoleHelper.Write(" not found in ");
+			ConsoleHelper.Write(list, ConsoleColor.Cyan);
+			ConsoleHelper.WriteLine(".");
 		}
 
 		public static void WriteKeyCopiedMessage(string value)
 		{
-			ConsoleHelper.WriteLine("Boom! We just copied " + value + " to the clipboard.");
+			ConsoleHelper.Write("Boom!", ConsoleColor.Magenta);
+			ConsoleHelper.Write(" We just copied ");
+			ConsoleHelper.Write(value, ConsoleColor.Green);
+			ConsoleHelper.WriteLine(" to the clipboard.");
 		}
 
 		public static void WriteListOpenedMessage(string list)
 		{
-			ConsoleHelper.WriteLine("Boom! We just opened all of " + list + " for you.");
+			ConsoleHelper.Write("Boom!", ConsoleColor.Magenta);
+			ConsoleHelper.Write(" We just opened all of ");
+			ConsoleHelper.Write(list, ConsoleColor.Cyan);
+			ConsoleHelper.WriteLine(" for you.");
 		}
 
 		public static void WriteKeyOpenedMessage(string list, string key)
 		{
-			ConsoleHelper.WriteLine("Boom! We just opened " + key + " for you.");
+			ConsoleHelper.Write("Boom!", ConsoleColor.Magenta);
+			ConsoleHelper.Write(" We just opened ");
+			ConsoleHelper.Write(key, ConsoleColor.Yellow);
+			ConsoleHelper.WriteLine(" for you.");
 		}
 
 		public static void WriteKeyAddedMessage(string list, string key, string value)
 		{
-			ConsoleHelper.WriteLine("Boom! " + key + " in " + list + " is " + value + ". Got it.");
+			ConsoleHelper.Write("Boom! ", ConsoleColor.Magenta);
+			ConsoleHelper.Write(key, ConsoleColor.Yellow);
+			ConsoleHelper.Write(" in ");
+			ConsoleHelper.Write(list, ConsoleColor.Cyan);
+			ConsoleHelper.Write(" is ");
+			ConsoleHelper.Write(value, ConsoleColor.Green);
+			ConsoleHelper.WriteLine(". Got it.");
 		}
 
 		public static void WriteListAddedMessage(string list)
 		{
-			ConsoleHelper.WriteLine("Boom! Created a new list called " + list + ".");
+			ConsoleHelper.Write("Boom!", ConsoleColor.Magenta);
+			ConsoleHelper.Write(" Created a new list called ");
+			ConsoleHelper.Write(list, ConsoleColor.Cyan);
+			ConsoleHelper.WriteLine(".");
 		}
 
 		public static void WriteKeyRemovedMessage(string list, string key)
 		{
-			ConsoleHelper.WriteLine("Boom! " + key + " is gone forever from " + list + ".");
+			ConsoleHelper.Write("Boom! ", ConsoleColor.Magenta);
+			ConsoleHelper.Write(key, ConsoleColor.Yellow);
+			ConsoleHelper.Write(" is gone forever from ");
+			ConsoleHelper.Write(list, ConsoleColor.Cyan);
+			ConsoleHelper.WriteLine(".");
 		}
 
 		#endregion

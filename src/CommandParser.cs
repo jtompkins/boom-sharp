@@ -79,8 +79,10 @@ namespace BoomSharp
 				return this.AddItem(command, major, minor);
 			}
 
-			return false;
+			return this.Overview();
 		}
+
+		#region Commands
 
 		public bool All()
 		{
@@ -92,11 +94,11 @@ namespace BoomSharp
 
 			foreach (KeyValuePair<string, IDictionary<string, string>> list in allLists)
 			{
-				ConsoleHelper.WriteLine(list.Key);
+				ConsoleHelper.WriteLine(list.Key, ConsoleColor.Cyan);
 
 				ConsoleHelper.IncreaseIndent();
 
-				ConsoleHelper.WriteDictionary(list.Value, keyPadding);
+				ConsoleHelper.WriteDictionary(list.Value, keyPadding, ConsoleColor.Yellow);
 
 				ConsoleHelper.DecreaseIndent();
 			}
@@ -106,6 +108,16 @@ namespace BoomSharp
 
 		public bool Overview()
 		{
+			if (BoomSharp.Store.All().Count > 0)
+				return All();
+			
+			ConsoleHelper.WriteLine("You don't have anything yet! To start out, create a new list:");
+			ConsoleHelper.WriteLine("  $ boom-sharp <list-name>");
+			ConsoleHelper.WriteLine("And then add something to your list!");
+			ConsoleHelper.WriteLine("  $ boom-sharp <list-name> <item-name> <item-value>");
+			ConsoleHelper.WriteLine("You can then grab your new item:");
+			ConsoleHelper.WriteLine("  $ boom-sharp <item-name>");
+
 			return true;
 		}
 
@@ -119,7 +131,8 @@ namespace BoomSharp
 			ConsoleHelper.WriteLine("boom-sharp all                      show all items in all lists");
 			ConsoleHelper.WriteLine("boom-sharp help                     this help text");
 			ConsoleHelper.WriteLine("boom-sharp storage                  shows which storage backend you're using");
-			ConsoleHelper.WriteLine("boom-sharp switch <storage>         switches to a different storage backend\n");
+			ConsoleHelper.WriteLine("boom-sharp switch <storage>         switches to a different storage backend");
+			ConsoleHelper.WriteLine("boom-sharp import <storage>         imports items from a different storage backend\n");
 			
 			ConsoleHelper.WriteLine("boom-sharp <list>                   create a new list");
 			ConsoleHelper.WriteLine("boom-sharp <list>                   show items for a list");
@@ -149,7 +162,32 @@ namespace BoomSharp
 
 		public bool Random(string list)
 		{
-			return true;
+			//get the full dictionary to work on
+			IDictionary<string, IDictionary<string, string>> lists = BoomSharp.Store.All();
+
+			//choose a key for a random list
+
+			string randomList = String.Empty;
+
+			if ((!String.IsNullOrEmpty(list)) && (lists.ContainsKey(list)))
+				randomList = list;
+			else
+				randomList = CommandParser.GetRandomItem<string>(lists.Keys);
+
+			//sanity check, let's make sure the key is valid, and that the selected list has stuff in it
+			if (lists.ContainsKey(randomList) && lists[randomList].Count > 0)
+			{
+				//choose a random key in the selected list
+				string randomItem = CommandParser.GetRandomItem<string>(lists[randomList].Keys);
+
+				//another sanity check here
+				if (lists[randomList].ContainsKey(randomItem))
+					return OpenKey(randomList, randomItem);
+
+				return true;
+			}
+
+			return Random(list);
 		}
 
 		public bool SwitchStore(string store)
@@ -318,7 +356,7 @@ namespace BoomSharp
 		public bool ShowList(string list)
 		{
 			ConsoleHelper.IncreaseIndent();
-			ConsoleHelper.WriteDictionary(BoomSharp.Store.GetList(list));
+			ConsoleHelper.WriteDictionary(BoomSharp.Store.GetList(list), 0, ConsoleColor.Yellow);
 			ConsoleHelper.ResetIndent();
 
 			return true;
@@ -377,7 +415,10 @@ namespace BoomSharp
 					BoomSharp.Store.RemoveList(list);
 					BoomSharp.Store.Save();
 
-					ConsoleHelper.WriteLine("Boom! Deleted all your " + list + ".");
+					ConsoleHelper.Write("Boom!", ConsoleColor.Magenta);
+					ConsoleHelper.Write(" Deleted all your ");
+					ConsoleHelper.Write(list, ConsoleColor.Cyan);
+					ConsoleHelper.WriteLine(".");
 				}
 				else
 					ConsoleHelper.WriteLine("Just kidding then.");
@@ -454,5 +495,16 @@ namespace BoomSharp
 
 			return true;
 		}
+
+		#endregion
+
+		#region Utility Methods
+
+		public static T GetRandomItem<T>(IEnumerable<T> list)
+		{
+			return list.ElementAt((new Random()).Next(list.Count()));
+		}
+
+		#endregion
 	}
 }

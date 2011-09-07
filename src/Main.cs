@@ -90,8 +90,6 @@ namespace BoomSharp
 		[STAThread] // for OLE
 		public static void Main (string[] args)
 		{
-			//BoomSharp.Command.RunCommand(new string[] { "import", "json" });
-			
 			BoomSharp.Command.RunCommand(args);
 		}
 	}
