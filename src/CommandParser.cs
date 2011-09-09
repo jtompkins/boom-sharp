@@ -3,6 +3,10 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using System.Xml.Linq;
+using System.Net;
+using System.Text;
+using System.IO;
 
 namespace BoomSharp
 {
@@ -19,34 +23,36 @@ namespace BoomSharp
 				Queue<string> arguments = new Queue<string>(args);
 
 				string command = arguments.Dequeue().ToLower();
-				string major = (arguments.Count > 0) ? arguments.Dequeue().ToLower() : null;
-				string minor = (arguments.Count > 0) ? arguments.Dequeue().ToLower() : null;
+				string major = (arguments.Count > 0) ? arguments.Dequeue() : null;
+				string minor = (arguments.Count > 0) ? arguments.Dequeue() : null;
 
 				//let's see if the first argument is one of our known commands.
-				if ((command == "all") || (command == "a"))
+				if (StringHelper.EqualsAny(command, "all", "a"))
 					return this.All();
-				else if ((command == "random") || (command == "r"))
+				else if (StringHelper.EqualsAny(command, "random", "r"))
 					return this.Random(major);
-				else if ((command == "echo") || (command == "e"))
+				else if (StringHelper.EqualsAny(command, "echo", "e"))
 					return (!String.IsNullOrEmpty(minor)) ? this.Echo(major, minor) : this.Echo(major);
-				else if ((command == "open") || (command == "o"))
+				else if (StringHelper.EqualsAny(command, "open", "o"))
 					return this.Open(major, minor);
-				else if (command == "store")
+				else if (StringHelper.Equals(command, "store"))
 					return this.ShowStore();
-				else if (command == "switch")
+				else if (StringHelper.Equals(command, "switch"))
 					return this.SwitchStore(major);
-				else if (command == "import")
+				else if (StringHelper.Equals(command, "import"))
 					return this.ImportStore(major);
-				else if (command == "help")
+				else if (StringHelper.Equals(command, "help"))
 					return this.Help();
-				else if ((command == "--version") || (command == "-v"))
+				else if (StringHelper.EqualsAny(command, "--version", "-v"))
 					return this.Version();
+				else if (StringHelper.Equals(command, "speak"))
+					return this.Speak(major, minor);
 
 				//first, see if we're dealing with a list
 				if (BoomSharp.Store.HasList(command))
 				{
 					//let's see if we need to delete the list
-					if (major == "delete")
+					if (StringHelper.Equals(major, "delete"))
 						return this.RemoveList(command);
 
 					//okay, now let's check to see if there are other arguments
@@ -59,7 +65,7 @@ namespace BoomSharp
 					//if the 3rd argument *is* "delete", we're removing an item.
 					if (String.IsNullOrEmpty(minor))
 						return this.CopyItem(command, major);
-					else if (minor != "delete")
+					else if (!StringHelper.Equals(minor, "delete"))
 						return this.AddItem(command, major, minor);
 					else
 						return this.RemoveItem(command, major);
@@ -148,7 +154,9 @@ namespace BoomSharp
 			ConsoleHelper.WriteLine("boom-sharp random <list>            open a random item's url for a list in browser");
 			ConsoleHelper.WriteLine("boom-sharp echo <name>              echo the item's value without copying");
 			ConsoleHelper.WriteLine("boom-sharp echo <list> <name>       echo the item's value without copying");
-			ConsoleHelper.WriteLine("boom-sharp <list> <name> delete     deletes an item");
+			ConsoleHelper.WriteLine("boom-sharp <list> <name> delete     deletes an item\n");
+
+			ConsoleHelper.WriteLine("boom-sharp speak <room> <name>      speaks an item's value in a campfire room");
 
 			return true;
 		}
@@ -494,6 +502,46 @@ namespace BoomSharp
 			ConsoleHelper.WriteKeyAddedMessage(list, key, value);
 
 			return true;
+		}
+
+		public bool Speak(string room, string key)
+		{
+			if (String.IsNullOrEmpty(room) ||
+				String.IsNullOrEmpty(key))
+				return false;
+
+			if (BoomSharp.Store.HasKey(key))
+			{ 
+				IList<Tuple<string, string, string>> items = BoomSharp.Store.GetItem(key);
+
+				if (items != null)
+				{
+					if (items.Count > 1)
+						ConsoleHelper.WriteAmbiguousKeysMessage(items);
+					else
+					{
+						Tuple<string, string, string> item = items.FirstOrDefault();
+
+						try
+						{
+							CampfireHelper c = new CampfireHelper();
+
+							if (c.Speak(room, item.Item3))
+							{
+								ConsoleHelper.WriteKeySpokenMessage(room, item.Item3);
+
+								return true;
+							}
+						}
+						catch (Exception)
+						{
+							ConsoleHelper.WriteCampfireErrorMessage();
+						}
+					}
+				}
+			}
+
+			return false;
 		}
 
 		#endregion

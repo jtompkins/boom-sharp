@@ -23,7 +23,7 @@ namespace BoomSharp
 			}
 		}
 				
-		private IDictionary<string, string> Configuration { get; set; }
+		private IDictionary<string, object> Configuration { get; set; }
 		
 		public BoomConfig()
 		{
@@ -31,7 +31,7 @@ namespace BoomSharp
 				this.LoadConfiguration();
 			
 			if (this.Configuration == null)
-				this.Configuration = new Dictionary<string, string>();
+				this.Configuration = new Dictionary<string, object>();
 		}
 		
 		private void LoadConfiguration()
@@ -42,7 +42,7 @@ namespace BoomSharp
 				{
 					string configJson = f.ReadToEnd();
 					
-					this.Configuration = JsonConvert.DeserializeObject<Dictionary<string, string>>(configJson);
+					this.Configuration = JsonConvert.DeserializeObject<Dictionary<string, object>>(configJson);
 				}
 			}
 		}
@@ -65,7 +65,7 @@ namespace BoomSharp
 			get
 			{
 				if (this.Configuration.ContainsKey(key))
-					return this.Configuration[key];
+					return this.Configuration[key].ToString();
 				
 				return String.Empty;
 			}

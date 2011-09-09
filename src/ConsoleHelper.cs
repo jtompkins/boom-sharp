@@ -122,6 +122,20 @@ namespace BoomSharp
 			ConsoleHelper.WriteLine(" to the clipboard.");
 		}
 
+		public static void WriteKeySpokenMessage(string room, string value)
+		{
+			ConsoleHelper.Write("Boom!", ConsoleColor.Magenta);
+			ConsoleHelper.Write(" We just said ");
+			ConsoleHelper.Write(value, ConsoleColor.Green);
+			ConsoleHelper.WriteLine(" in room " + room + ".");
+		}
+
+		public static void WriteCampfireErrorMessage()
+		{
+			ConsoleHelper.Write("Oops!", ConsoleColor.Red);
+			ConsoleHelper.WriteLine(" There was an error speaking to Campfire.");
+		}
+
 		public static void WriteListOpenedMessage(string list)
 		{
 			ConsoleHelper.Write("Boom!", ConsoleColor.Magenta);

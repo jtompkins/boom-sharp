@@ -100,9 +100,9 @@ namespace BoomSharp
 				this.AddList(list);
 			
 			if (!this.HasKey(list, key))
-				this.Lists[list].Add(key.ToLower(), value.ToLower());
+				this.Lists[list].Add(key.ToLower(), value);
 			else
-				this.Lists[list][key] = value.ToLower();
+				this.Lists[list][key] = value;
 		}
 		
 		public void RemoveList(string list)
