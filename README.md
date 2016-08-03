@@ -53,4 +53,4 @@ Want to contribute?  I'd love to hear from you. Clone this repo, write some code
 
 ## Hey There
 
-[Josh Tompkins](http://www.joshtompkins.com) made this. Want to reach me? The best place is on Twitter (I'm [@iioshius](http://www.twitter.com/iioshius)).
+[Josh Tompkins](http://www.joshtompkins.com) made this. Want to reach me? The best place is on Twitter (I'm [@iioshius](http://www.twitter.com/jtompkinsx)).
